@@ -12,10 +12,15 @@ user@rpi:~/vpn# sudo apt install bridge-utils
 
 install openvpn-install script:
 Download script:
+
 user@rpi:~/vpn# curl -O https://raw.githubusercontent.com/angristan/openvpn-install/master/openvpn-install.sh
+
 Set execute bit:
+
 user@rpi:~/vpn# chmod +x openvpn-install.sh
+
 Run it:
+
 user@rpi:~/vpn# ./openvpn-install.sh
 
 Select options as wanted. Not described here. If not sure, use defaults. But do protect your key with a password.
@@ -34,3 +39,9 @@ sudo /etc/openvpn/bridge_start.sh
 just before the exit 0 at the bottom.
 The script will then run when the RPI is starting up and it will create necessary network devices for bridging the VPN connection.
 
+Edit the client.ovpn file that was created by the openvpn-install.sh script. Change the line that starts with:
+dev tun
+to 
+dev tap
+
+Import the client.ovpn file in the client and play around with your new vpn
