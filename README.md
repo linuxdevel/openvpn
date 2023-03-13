@@ -27,6 +27,7 @@ dev tap0
 
 Copy script bridge_start.sh to e.g. /etc/openvpn
 Make it executable with chmod +x /etc/openvpn/bridge_start.sh
+Edit the script to suit your network settings.
 
 edit /etc/rc.local, add a line:
 sudo /etc/openvpn/bridge_start.sh
