@@ -14,6 +14,7 @@ tap="tap0"
 
 # Define physical ethernet interface to be bridged
 # with TAP interface(s) above.
+# Update according to your network setup. Below is just example
 eth="eth0"
 eth_ip="192.168.1.134"
 eth_netmask="255.255.255.0"
