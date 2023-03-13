@@ -44,7 +44,7 @@ chmod +x /etc/openvpn/bridge_start.sh
 
 Edit the script to suit your network settings.
 
-# Auto startup of script
+## Auto startup of script
 edit /etc/rc.local, add a line:
 ```
 sudo /etc/openvpn/bridge_start.sh
@@ -54,7 +54,7 @@ just before the exit 0 at the bottom.
 
 The script will then run when the RPI is starting up and it will create necessary network devices for bridging the VPN connection.
 
-# client
+## client
 Edit the client.ovpn file that was created by the openvpn-install.sh script. Change the line that starts with:
 ```
 dev tun
@@ -65,3 +65,8 @@ dev tap
 ```
 
 Import the client.ovpn file in the client and play around with your new vpn
+
+## Useful links
+https://www.aaflalo.me/2015/01/openvpn-tap-bridge-mode/
+
+https://openvpn.net/community-resources/ethernet-bridging/  (PS, the bridge startup script on this page is missing some commands)
