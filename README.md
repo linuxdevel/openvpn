@@ -70,3 +70,17 @@ Import the client.ovpn file in the client and play around with your new vpn
 https://www.aaflalo.me/2015/01/openvpn-tap-bridge-mode/
 
 https://openvpn.net/community-resources/ethernet-bridging/  (PS, the bridge startup script on this page is missing some commands)
+
+## Thoughts
+Sometimes when using a VPN from/to a private network you could end up in this example scenario:
+
+client (address 192.168.1.y) -> openvpn -> remote openvpn server (address 192.168.1.x) -> remote vlan (addr: 192.168.1...)
+```
+Where your local network has the same subnet as the remote. This will cause issues. 
+```
+
+If you have control of the remote network, select a private IP range that is unlikely to be used from a remote client.. 
+```
+TODO find examples of ranges unlikely to be used by routers
+```
+
