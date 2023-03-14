@@ -1,8 +1,8 @@
-# Raspberry PI openvpn server in bridge mode
+# Raspberry PI/Linux openvpn server in bridge mode
 A very brief instruction on how to make a bridged network over openvpn.
 PS.. The examples on openvpn website are missing some important steps in the bridge_start.sh script.. Those steps are included in this version of the script.
 
-P/S, this works very well with ExpertSDR3 if you are into ham-radio! 
+P/S, this works very well with ExpertSDR3 if you are into ham-radio, you dont have to use the eesdr cloud solution at all! 
 
 ## Install RPI OS on your device memory card
 
