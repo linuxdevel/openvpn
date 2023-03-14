@@ -74,10 +74,11 @@ https://openvpn.net/community-resources/ethernet-bridging/  (PS, the bridge star
 ## Thoughts
 Sometimes when using a VPN from/to a private network you could end up in this example scenario:
 
+```
 client (address 192.168.1.y) -> openvpn -> remote openvpn server (address 192.168.1.x) -> remote vlan (addr: 192.168.1...)
 ```
 Where your local network has the same subnet as the remote. This will cause issues. 
-```
+
 
 If you have control of the remote network, select a private IP range that is unlikely to be used from a remote client.. 
 ```
