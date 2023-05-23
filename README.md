@@ -47,7 +47,41 @@ example:
   server-bridge 10.98.99.2 255.255.255.0 10.98.99.250 10.98.99.254
 ```
 For Example values above. Make sure that the IP range for VPN clients are outside the range that your DHCP server serves to its local clients!
-
+See also example server.conf here:
+```
+port 1194
+proto udp6
+dev tap0
+user nobody
+group nogroup
+persist-key
+persist-tun
+keepalive 10 120
+topology subnet
+server-bridge 10.98.99.134 255.255.255.0 10.98.99.230 10.98.99.231
+ifconfig-pool-persist ipp.txt
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
+push "redirect-gateway def1 bypass-dhcp"
+dh none
+ecdh-curve secp521r1
+tls-crypt tls-crypt.key
+crl-verify crl.pem
+ca ca.crt
+cert server_pDpSWqj8rGdh6zsK.crt
+key server_pDpSWqj8rGdh6zsK.key
+auth SHA512
+cipher AES-256-GCM
+#ncp-ciphers AES-256-GCM
+data-ciphers AES-256-GCM
+tls-server
+tls-version-min 1.2
+tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384
+client-config-dir /etc/openvpn/ccd
+status /var/log/openvpn/status.log
+log-append /var/log/openvpn/openvpn.log
+verb 3
+```
 ## bridge_start script
 Copy script bridge_start.sh to e.g. /etc/openvpn
 
