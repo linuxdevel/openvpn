@@ -39,7 +39,6 @@ dev tap0
 And
 ```
 Change the line starting with server to:
-```
 server-bridge <IP address of RPI> 255.255.255.0 <start IP address of VPN clients> <end IP address of VPN clients>
 ```
 example:
