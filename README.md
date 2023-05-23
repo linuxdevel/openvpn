@@ -35,13 +35,16 @@ to
 ```
 dev tap0
 ```
+
 And
----
+```
 Change the line starting with server to:
+```
 server-bridge <IP address of RPI> 255.255.255.0 <start IP address of VPN clients> <end IP address of VPN clients>
+```
 example:
   server-bridge 10.98.99.2 255.255.255.0 10.98.99.250 10.98.99.254
-
+```
 For Example values above. Make sure that the IP range for VPN clients are outside the range that your DHCP server serves to its local clients!
 
 ## bridge_start script
