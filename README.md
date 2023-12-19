@@ -22,8 +22,9 @@ Select I2 SSH and enable SSH remote commandline access.
 Save and quit raspi-config
 
 Please also remember to change the default password for the "pi" user, use a more complicated/hard to guess password.. And you could also setup authentication with SSH key... 
-enter command : 
-user@raspberry~: sudo reboot -h now
+
+Enter command to reboot the device : 
+- user@raspberry~: sudo reboot -h now
 
 ## install bridge-utils
 ```
