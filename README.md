@@ -1,5 +1,6 @@
 # Raspberry PI/Linux openvpn server in bridge mode
-A very brief instruction on how to make a bridged network over openvpn. Keep in mind it is good to use a static IP on your PI for this setup to work smooth, this can be achieved by either configuring it with a static address (e.g. using raspi-config) or configure your DHCP server (in your router) to reserver the IP for the PI.
+A very brief instruction on how to make a bridged network over openvpn. Keep in mind it is good to use a static IP on your PI for this setup to work smooth, this can be achieved by either configuring it with a static address (e.g. using raspi-config) outside the range of your local DHCP server -  or configure your DHCP server (in your router) to reserve a static IP from the DHCP pool for the PI.
+
 PS.. The examples on openvpn website are missing some important steps in the bridge_start.sh script.. Those steps are included in this version of the script.
 
 P/S, this works very well with ExpertSDR3 if you are into ham-radio, you dont have to use the eesdr cloud solution at all! 
