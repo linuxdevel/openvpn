@@ -119,12 +119,15 @@ Import the client.ovpn file in the client and play around with your new vpn
 ## Router port forwarding
 In order for the VPN server to be used, you need to forward a UDP port from internet to your raspberry PI device. The openvpn server defaults to UDP port 1194 but it is probably better to change it to a different value, e.g. 21194 or any other high value.
 In your router you then need to setup UDP portforwarding from internet to your PI IP/PORT. How this is done varies from router to router.
-P/S, 
 
 ## Useful links
 https://www.aaflalo.me/2015/01/openvpn-tap-bridge-mode/
 
 https://openvpn.net/community-resources/ethernet-bridging/  (PS, the bridge startup script on this page is missing some commands)
+
+https://www.noip.com (Dynamic DNS)
+
+https://www.cloudns.net (Dynamic DNS)
 
 ## Thoughts
 Sometimes when using a VPN from/to a private network you could end up in this example scenario:
@@ -134,8 +137,11 @@ client (address 192.168.1.y) -> openvpn -> remote openvpn server (address 192.16
 ```
 Where your local network has the same subnet as the remote. This will cause issues and the VPN will not work. 
 
-If you have control of the remote network, select a private IP range that is unlikely to be used from a remote client.. 
+If you have control of the network where you raspberry openvpn server is installed, select a private IP range that is unlikely to be used from a remote client.. 
 ```
-TODO find examples of ranges unlikely to be used by routers
+Example: 
+Private network not likely to be used in any commercial home routers: 10.11,12.0/24 
+Address range: 10.11.12.1 -> 10.11.12.254
+
 ```
 
