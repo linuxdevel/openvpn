@@ -5,8 +5,25 @@ PS.. The examples on openvpn website are missing some important steps in the bri
 P/S, this works very well with ExpertSDR3 if you are into ham-radio, you dont have to use the eesdr cloud solution at all! 
 
 ## Install RPI OS on your device memory card
+https://raspberrytips.com/install-raspberry-pi-os/
 
 ## logon to your RPI
+https://raspberrypi-guide.github.io/getting-started/raspberry-pi-configuration
+
+If this raspberry PI is only going to be used as an openvpn server, I reccommend disabling GUI mode. It can be done in a console using the command raspi-config:
+- Start raspi-config in a terminal window
+- select menu 1 (System config),
+- Select menu S5
+- Select B1 Console
+
+If you also want to enable ssh access to your raspberry, go into menu 3 Interface options (in main menu)
+Select I2 SSH and enable SSH remote commandline access.
+
+Save and quit raspi-config
+
+Please also remember to change the default password for the "pi" user, use a more complicated/hard to guess password.. And you could also setup authentication with SSH key... 
+enter command : 
+user@raspberry~: sudo reboot -h now
 
 ## install bridge-utils
 ```
