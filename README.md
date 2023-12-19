@@ -149,6 +149,8 @@ https://www.noip.com (Dynamic DNS)
 
 https://www.cloudns.net (Dynamic DNS)
 
+https://raspberrytips.com/set-static-ip-address-raspberry-pi/
+
 ## Thoughts
 Sometimes when using a VPN from/to a private network you could end up in this example scenario:
 
