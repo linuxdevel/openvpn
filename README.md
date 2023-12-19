@@ -1,5 +1,5 @@
 # Raspberry PI/Linux openvpn server in bridge mode
-A very brief instruction on how to make a bridged network over openvpn.
+A very brief instruction on how to make a bridged network over openvpn. Keep in mind it is good to use a static IP on your PI for this setup to work smooth, this can be achieved by either configuring it with a static address (e.g. using raspi-config) or configure your DHCP server (in your router) to reserver the IP for the PI.
 PS.. The examples on openvpn website are missing some important steps in the bridge_start.sh script.. Those steps are included in this version of the script.
 
 P/S, this works very well with ExpertSDR3 if you are into ham-radio, you dont have to use the eesdr cloud solution at all! 
@@ -23,7 +23,7 @@ user@rpi:~/vpn# chmod +x openvpn-install.sh
 ```
 Run it:
 ```
-user@rpi:~/vpn# ./openvpn-install.sh
+user@rpi:~/vpn# sudo ./openvpn-install.sh
 ```
 Select options as wanted. Not described here. If not sure, use defaults. But do protect your key with a password.
 
@@ -40,7 +40,7 @@ And
 
 Change the line starting with server to:
 ```
-server-bridge <IP address of RPI> 255.255.255.0 <start IP address of VPN clients> <end IP address of VPN clients>
+server-bridge <IP address of RPI> <netmask> <start IP address of VPN clients> <end IP address of VPN clients>
 ```
 example:
 ```
@@ -83,14 +83,17 @@ log-append /var/log/openvpn/openvpn.log
 verb 3
 ```
 ## bridge_start script
-Copy script bridge_start.sh to e.g. /etc/openvpn
+Copy script bridge_start.sh to /etc/openvpn
 
 Make it executable with 
 ```
 chmod +x /etc/openvpn/bridge_start.sh
 ```
-
-Edit the script to suit your network settings.
+Edit the script to suit your network settings using your favourite text editor - personally I love "vi".
+Note that the eth_ip IP address and the eth_mac in bridge_start.sh must be identical to your RPI. You can find the values by running the command shown below:
+root@raspberrypi:~# ifconfig
+Look for the info in the section named eth0 (if your PI is connected with cable, otherwise look at the values in the section named wlan0.
+IP address and netmask is listed at the line starting with "inet" and the mac address of your PI is listed right after the word "ether". 
 
 ## Auto startup of script
 edit /etc/rc.local, add a line:
@@ -111,8 +114,12 @@ to
 ```
 dev tap
 ```
-
+The client configuration should also contain your public IP address in the line starting with "remote". Here you have to decide if you want to use your IP (The public IP will most likely change every now and then unless you have a static public IP) or if you want to use e.g. dyndns and a hostname instead. Latter is better.
 Import the client.ovpn file in the client and play around with your new vpn
+## Router port forwarding
+In order for the VPN server to be used, you need to forward a UDP port from internet to your raspberry PI device. The openvpn server defaults to UDP port 1194 but it is probably better to change it to a different value, e.g. 21194 or any other high value.
+In your router you then need to setup UDP portforwarding from internet to your PI IP/PORT. How this is done varies from router to router.
+P/S, 
 
 ## Useful links
 https://www.aaflalo.me/2015/01/openvpn-tap-bridge-mode/
@@ -125,8 +132,7 @@ Sometimes when using a VPN from/to a private network you could end up in this ex
 ```
 client (address 192.168.1.y) -> openvpn -> remote openvpn server (address 192.168.1.x) -> remote vlan (addr: 192.168.1...)
 ```
-Where your local network has the same subnet as the remote. This will cause issues. 
-
+Where your local network has the same subnet as the remote. This will cause issues and the VPN will not work. 
 
 If you have control of the remote network, select a private IP range that is unlikely to be used from a remote client.. 
 ```
