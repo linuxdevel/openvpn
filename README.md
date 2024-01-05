@@ -30,9 +30,13 @@ Enter command to reboot the device :
 ## Enable automatic update of your PI
 In order for your raspberry PI to stay up to date and secure I recommend enabling automatic update of the different software packages installed.
 Follow the instructions here :
+---
 https://www.zealfortechnology.com/2018/08/configure-unattended-upgrades-on-raspberry-pi.html 
-or here https://www.seancarney.ca/2021/02/06/secure-your-raspberry-pi-by-enabling-automatic-software-updates/#:~:text=sudo%20dpkg-reconfigure%20--priority%3Dlow%20unattended-upgrades%20You%E2%80%99ll%20be%20presented%20with,the%20latest%20software%20updates%20as%20they%20become%20available.
-
+---
+or here 
+---
+https://www.seancarney.ca/2021/02/06/secure-your-raspberry-pi-by-enabling-automatic-software-updates/#:~:text=sudo%20dpkg-reconfigure%20--priority%3Dlow%20unattended-upgrades%20You%E2%80%99ll%20be%20presented%20with,the%20latest%20software%20updates%20as%20they%20become%20available.
+---
 ## install bridge-utils
 ```
 user@rpi:~/vpn# sudo apt install bridge-utils
