@@ -8,12 +8,6 @@ P/S, this works very well with ExpertSDR3 if you are into ham-radio, you dont ha
 ## Install RPI OS on your device memory card
 https://raspberrytips.com/install-raspberry-pi-os/
 
-## Enable automatic update of your PI
-In order for your raspberry PI to stay up to date and secure I recommend enabling automatic update of the different software packages installed.
-Follow the instructions here :
-https://www.zealfortechnology.com/2018/08/configure-unattended-upgrades-on-raspberry-pi.html 
-or here https://www.seancarney.ca/2021/02/06/secure-your-raspberry-pi-by-enabling-automatic-software-updates/#:~:text=sudo%20dpkg-reconfigure%20--priority%3Dlow%20unattended-upgrades%20You%E2%80%99ll%20be%20presented%20with,the%20latest%20software%20updates%20as%20they%20become%20available.
-
 ## logon to your RPI
 https://raspberrypi-guide.github.io/getting-started/raspberry-pi-configuration
 
@@ -32,6 +26,12 @@ Please also remember to change the default password for the "pi" user, use a mor
 
 Enter command to reboot the device : 
 - user@raspberry~: sudo reboot -h now
+
+## Enable automatic update of your PI
+In order for your raspberry PI to stay up to date and secure I recommend enabling automatic update of the different software packages installed.
+Follow the instructions here :
+https://www.zealfortechnology.com/2018/08/configure-unattended-upgrades-on-raspberry-pi.html 
+or here https://www.seancarney.ca/2021/02/06/secure-your-raspberry-pi-by-enabling-automatic-software-updates/#:~:text=sudo%20dpkg-reconfigure%20--priority%3Dlow%20unattended-upgrades%20You%E2%80%99ll%20be%20presented%20with,the%20latest%20software%20updates%20as%20they%20become%20available.
 
 ## install bridge-utils
 ```
