@@ -55,7 +55,7 @@ Run it:
 user@rpi:~/vpn# sudo ./openvpn-install.sh
 ```
 Select options as wanted. Not described here. If not sure, use defaults. But do protect your key with a password.
-(Select elliptic curve key, e.g. a key based on curve P-521.. it is said that ECC is quantum resistant - at least until otherwise proved)
+(Select elliptic curve key, e.g. a key based on curve P-521.. 
 
 Edit server.conf manually and change line 
 ```
