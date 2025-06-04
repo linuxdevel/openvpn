@@ -1,0 +1,158 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+/* Custom styles for OpenVPN documentation */
+
+/* Improve code block appearance */
+.highlight {
+  background: #f8f8f8;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 16px;
+  overflow: auto;
+  margin: 16px 0;
+}
+
+/* Better table styling */
+table {
+  border-collapse: collapse;
+  margin: 16px 0;
+  width: 100%;
+}
+
+table th,
+table td {
+  border: 1px solid #d1d5da;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+table th {
+  background: #f6f8fa;
+  font-weight: 600;
+}
+
+table tr:nth-child(even) {
+  background: #f6f8fa;
+}
+
+/* Warning boxes */
+blockquote {
+  border-left: 4px solid #ffc107;
+  background: #fff3cd;
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 0 6px 6px 0;
+}
+
+/* Success/info boxes */
+.alert-success {
+  border-left: 4px solid #28a745;
+  background: #d4edda;
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 0 6px 6px 0;
+}
+
+.alert-info {
+  border-left: 4px solid #17a2b8;
+  background: #d1ecf1;
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 0 6px 6px 0;
+}
+
+/* Better heading spacing */
+h1, h2, h3 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  border-bottom: 2px solid #e1e4e8;
+  padding-bottom: 0.5rem;
+}
+
+h2 {
+  border-bottom: 1px solid #e1e4e8;
+  padding-bottom: 0.3rem;
+}
+
+/* Command line improvements */
+code {
+  background: #f3f4f6;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 85%;
+}
+
+/* Table of contents styling */
+.table-of-contents {
+  background: #f8f9fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.table-of-contents ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.table-of-contents > ul {
+  padding-left: 0;
+}
+
+.table-of-contents li {
+  margin: 4px 0;
+}
+
+/* Step numbering */
+.step-number {
+  display: inline-block;
+  background: #0366d6;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+  line-height: 24px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+  .container-lg {
+    padding: 0 16px;
+  }
+  
+  table {
+    font-size: 14px;
+  }
+  
+  .highlight {
+    padding: 12px;
+    overflow-x: auto;
+  }
+}
+
+/* Print styles */
+@media print {
+  .navigation {
+    display: none;
+  }
+  
+  .footer {
+    display: none;
+  }
+  
+  .highlight {
+    border: 1px solid #000;
+    background: white;
+  }
+}
