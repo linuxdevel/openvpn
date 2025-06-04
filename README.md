@@ -1,180 +1,188 @@
-# Raspberry PI/Linux openvpn server in bridge mode
-A very brief instruction on how to make a bridged network over openvpn. Keep in mind it is good to use a static IP on your PI for this setup to work smooth, this can be achieved by either configuring it with a static address (e.g. using raspi-config) outside the range of your local DHCP server -  or configure your DHCP server (in your router) to reserve a static IP from the DHCP pool for the PI.
+# Raspberry Pi/Linux OpenVPN Server in Bridge Mode
 
-PS.. The examples on openvpn website are missing some important steps in the bridge_start.sh script.. Those steps are included in this version of the script.
-Remember to update the bridge_start.sh script to math your network setup.
+This guide provides step-by-step instructions to set up an OpenVPN server in bridge mode on a Raspberry Pi or Linux device. Bridged networking allows VPN clients to appear as if they are on the same local network as the server, enabling seamless communication.
 
-Bridge mode works very well with ExpertSDR3 if you are into ham-radio, you dont have to use the eesdr cloud solution at all! 
+## Prerequisites
 
-## Install RPI OS on your device memory card
-https://raspberrytips.com/install-raspberry-pi-os/
+1. **Static IP Address**: Ensure your Raspberry Pi has a static IP address. This can be configured:
+   - Directly on the Raspberry Pi using `raspi-config`.
+   - By reserving an IP address for the Raspberry Pi in your router's DHCP settings.
 
-## logon to your RPI
-https://raspberrypi-guide.github.io/getting-started/raspberry-pi-configuration
+2. **Bridge Utilities**: Install `bridge-utils` for managing network bridges.
 
-If this raspberry PI is only going to be used as an openvpn server, I reccommend disabling GUI mode. It can be done in a console using the command raspi-config:
-- Start raspi-config in a terminal window
-- select menu 1 (System config),
-- Select menu S5
-- Select B1 Console
+3. **OpenVPN**: Install and configure OpenVPN using the provided script.
 
-If you also want to enable ssh access to your raspberry, go into menu 3 Interface options (in main menu)
-Select I2 SSH and enable SSH remote commandline access.
+---
 
-Save and quit raspi-config
+## Why Bridge Mode?
 
-Please also remember to change the default password for the "pi" user, use a more complicated/hard to guess password.. And you could also setup authentication with SSH key... 
+Bridge mode is particularly useful for applications like ham radio (e.g., ExpertSDR3), where devices need to communicate as if they are on the same local network. Unlike routed mode, bridge mode allows broadcast and multicast traffic, which is essential for some applications.
 
-Enter command to reboot the device : 
-- user@raspberry~: sudo reboot -h now
+---
 
-## Enable automatic update of your PI
-In order for your raspberry PI to stay up to date and secure I recommend enabling automatic update of the different software packages installed.
-Follow the instructions here :
-```
-https://www.zealfortechnology.com/2018/08/configure-unattended-upgrades-on-raspberry-pi.html 
-```
-or here 
-```
-https://www.seancarney.ca/2021/02/06/secure-your-raspberry-pi-by-enabling-automatic-software-updates/#:~:text=sudo%20dpkg-reconfigure%20--priority%3Dlow%20unattended-upgrades%20You%E2%80%99ll%20be%20presented%20with,the%20latest%20software%20updates%20as%20they%20become%20available.
-```
-## install bridge-utils
-```
-user@rpi:~/vpn# sudo apt install bridge-utils
-```
-## install openvpn-install script
-Download script:
-```
-user@rpi:~/vpn# curl -O https://raw.githubusercontent.com/angristan/openvpn-install/master/openvpn-install.sh
-```
-Set execute bit:
-```
-user@rpi:~/vpn# chmod +x openvpn-install.sh
-```
-Run it:
-```
-user@rpi:~/vpn# sudo ./openvpn-install.sh
-```
-Select options as wanted. Not described here. If not sure, use defaults. But do protect your key with a password.
-(Select elliptic curve key, e.g. a key based on curve P-521.. 
+## Step 1: Install Raspberry Pi OS
 
-Edit server.conf manually and change line 
-```
-dev tun
-```
-to
-```
-dev tap0
+Follow the instructions on [RaspberryTips](https://raspberrytips.com/install-raspberry-pi-os/) to install Raspberry Pi OS on your device's memory card.
+
+---
+
+## Step 2: Configure Raspberry Pi
+
+1. **Log in to Your Raspberry Pi**  
+   Follow the guide on [Raspberry Pi Guide](https://raspberrypi-guide.github.io/getting-started/raspberry-pi-configuration) to access your Raspberry Pi.
+
+2. **Disable GUI Mode (Optional)**  
+   If the Raspberry Pi will only be used as an OpenVPN server, disable the GUI to save resources:
+   - Run `sudo raspi-config`.
+   - Navigate to `System Options > Boot / Auto Login > Console`.
+
+3. **Enable SSH Access (Optional)**  
+   To enable remote command-line access:
+   - In `raspi-config`, go to `Interface Options > SSH` and enable it.
+
+4. **Change Default Password**  
+   Use a strong password for the `pi` user:
+   ```bash
+   passwd
+   ```
+
+5. **Reboot the Device**  
+   ```bash
+   sudo reboot -h now
+   ```
+
+---
+
+## Step 3: Enable Automatic Updates
+
+To keep your Raspberry Pi secure, enable automatic updates. Follow one of these guides:
+- [Zeal for Technology](https://www.zealfortechnology.com/2018/08/configure-unattended-upgrades-on-raspberry-pi.html)
+- [Sean Carney's Guide](https://www.seancarney.ca/2021/02/06/secure-your-raspberry-pi-by-enabling-automatic-software-updates/)
+
+---
+
+## Step 4: Install Bridge Utilities
+
+Install the `bridge-utils` package:
+```bash
+sudo apt install bridge-utils
 ```
 
-And
+---
 
-Change the line starting with server to:
-```
-server-bridge <IP address of RPI> <netmask> <start IP address of VPN clients> <end IP address of VPN clients>
-```
-example:
-```
-  server-bridge 10.98.99.2 255.255.255.0 10.98.99.250 10.98.99.254
-```
-For Example values above. Make sure that the IP range for VPN clients are outside the range that your DHCP server serves to its local clients!
-See also example server.conf here:
-```
-port 1194
-proto udp6
-dev tap0
-user nobody
-group nogroup
-persist-key
-persist-tun
-keepalive 10 120
-topology subnet
-server-bridge 10.98.99.134 255.255.255.0 10.98.99.230 10.98.99.231
-ifconfig-pool-persist ipp.txt
-push "dhcp-option DNS 8.8.8.8"
-push "dhcp-option DNS 8.8.4.4"
-push "redirect-gateway def1 bypass-dhcp"
-dh none
-ecdh-curve secp521r1
-tls-crypt tls-crypt.key
-crl-verify crl.pem
-ca ca.crt
-cert server_pDpSWqj8rGdh6zsK.crt
-key server_pDpSWqj8rGdh6zsK.key
-auth SHA512
-cipher AES-256-GCM
-#ncp-ciphers AES-256-GCM
-data-ciphers AES-256-GCM
-tls-server
-tls-version-min 1.2
-tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384
-client-config-dir /etc/openvpn/ccd
-status /var/log/openvpn/status.log
-log-append /var/log/openvpn/openvpn.log
-verb 3
-```
-## bridge_start script
-Copy script bridge_start.sh to /etc/openvpn
+## Step 5: Install OpenVPN
 
-Make it executable with 
-```
-chmod +x /etc/openvpn/bridge_start.sh
-```
-Edit the script to suit your network settings using your favourite text editor - personally I love "vi".
-Note that the eth_ip IP address and the eth_mac in bridge_start.sh must be identical to your RPI. You can find the values by running the command shown below:
-root@raspberrypi:~# ifconfig
-Look for the info in the section named eth0 (if your PI is connected with cable, otherwise look at the values in the section named wlan0.
-IP address and netmask is listed at the line starting with "inet" and the mac address of your PI is listed right after the word "ether". 
+1. Download the OpenVPN installation script:
+   ```bash
+   curl -O https://raw.githubusercontent.com/angristan/openvpn-install/master/openvpn-install.sh
+   ```
 
-## Auto startup of script
-edit /etc/rc.local, add a line:
-```
+2. Make the script executable:
+   ```bash
+   chmod +x openvpn-install.sh
+   ```
+
+3. Run the script:
+   ```bash
+   sudo ./openvpn-install.sh
+   ```
+   - Follow the prompts to configure OpenVPN. If unsure, use the default options.
+   - Select an elliptic curve key (e.g., P-521) for better security.
+
+---
+
+## Step 6: Configure OpenVPN for Bridge Mode
+
+1. Edit the `server.conf` file:
+   ```bash
+   sudo nano /etc/openvpn/server.conf
+   ```
+
+2. Change the following lines:
+   - Replace `dev tun` with:
+     ```conf
+     dev tap0
+     ```
+   - Replace the `server` line with:
+     ```conf
+     server-bridge <RPI_IP> <NETMASK> <START_IP> <END_IP>
+     ```
+     Example:
+     ```conf
+     server-bridge 192.168.1.134 255.255.255.0 192.168.1.200 192.168.1.210
+     ```
+
+3. Ensure the IP range for VPN clients does not overlap with your DHCP server's range.
+
+---
+
+## Step 7: Configure the Bridge Script
+
+1. Copy the `bridge_start.sh` script to `/etc/openvpn`:
+   ```bash
+   sudo cp bridge_start.sh /etc/openvpn/
+   ```
+
+2. Make it executable:
+   ```bash
+   chmod +x /etc/openvpn/bridge_start.sh
+   ```
+
+3. Edit the script to match your network settings:
+   - Update `eth_ip`, `eth_netmask`, `eth_broadcast`, `eth_gateway`, and `eth_mac` to match your Raspberry Pi's network configuration.
+   - Use `ifconfig` to find these values:
+     ```bash
+     ifconfig
+     ```
+
+---
+
+## Step 8: Enable Auto Startup of the Bridge Script
+
+Edit `/etc/rc.local` and add the following line before `exit 0`:
+```bash
 sudo /etc/openvpn/bridge_start.sh
 ```
 
-just before the exit 0 at the bottom.
+---
 
-The script will then run when the RPI is starting up and it will create necessary network devices for bridging the VPN connection.
+## Step 9: Configure the Client
 
-## client
-Edit the client.ovpn file that was created by the openvpn-install.sh script. Change the line that starts with:
-```
-dev tun
-```
-to 
-```
-dev tap
-```
-The client configuration should also contain your public IP address in the line starting with "remote". Here you have to decide if you want to use your IP (The public IP will most likely change every now and then unless you have a static public IP) or if you want to use e.g. dyndns and a hostname instead. Latter is better.
-Import the client.ovpn file in the client and play around with your new vpn
-## Router port forwarding
-In order for the VPN server to be used, you need to forward a UDP port from internet to your raspberry PI device. The openvpn server defaults to UDP port 1194 but it is probably better to change it to a different value, e.g. 21194 or any other high value.
-In your router you then need to setup UDP portforwarding from internet to your PI IP/PORT. How this is done varies from router to router.
+1. Edit the `client.ovpn` file generated by the OpenVPN installation script:
+   - Replace `dev tun` with:
+     ```conf
+     dev tap
+     ```
+   - Update the `remote` line with your public IP or dynamic DNS hostname.
 
-## Useful links
-https://www.aaflalo.me/2015/01/openvpn-tap-bridge-mode/
+2. Import the `client.ovpn` file into your OpenVPN client application.
 
-https://openvpn.net/community-resources/ethernet-bridging/  (PS, the bridge startup script on this page is missing some commands)
+---
 
-https://www.noip.com (Dynamic DNS)
+## Step 10: Configure Router Port Forwarding
 
-https://www.cloudns.net (Dynamic DNS)
+Forward the OpenVPN port (default: UDP 1194) from your router to your Raspberry Pi. For better security, consider using a non-standard port (e.g., 21194).
 
-https://raspberrytips.com/set-static-ip-address-raspberry-pi/
+---
 
-## Thoughts
-Sometimes when using a VPN from/to a private network you could end up in this example scenario:
+## Troubleshooting
 
-```
-client (address 192.168.1.y) -> openvpn -> remote openvpn server (address 192.168.1.x) -> remote vlan (addr: 192.168.1...)
-```
-Where your local network has the same subnet as the remote. This will cause issues and the VPN will not work. 
+### Subnet Conflicts
+If your local network and the VPN network use the same subnet (e.g., both use `192.168.1.x`), the VPN will not work. To avoid this:
+- Use a unique private IP range for your VPN, such as `10.11.12.0/24`.
 
-If you have control of the network where you raspberry openvpn server is installed, select a private IP range that is unlikely to be used from a remote client.. 
-```
-Example: 
-Private network not likely to be used in any commercial home routers: 10.11,12.0/24 
-Address range: 10.11.12.1 -> 10.11.12.254
+---
 
-```
+## Useful Links
+
+- [OpenVPN TAP Bridge Mode](https://www.aaflalo.me/2015/01/openvpn-tap-bridge-mode/)
+- [OpenVPN Ethernet Bridging](https://openvpn.net/community-resources/ethernet-bridging/)
+- [Dynamic DNS Services](https://www.noip.com) | [CloudNS](https://www.cloudns.net)
+- [Set Static IP on Raspberry Pi](https://raspberrytips.com/set-static-ip-address-raspberry-pi/)
+
+---
+
+## Final Thoughts
+
+Bridge mode is a powerful way to extend your local network over a VPN. However, it requires careful configuration to avoid conflicts and ensure security. By following this guide, you can set up a robust OpenVPN server tailored to your needs.
 
