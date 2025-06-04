@@ -1,0 +1,9 @@
+# Jekyll build artifacts
+docs/_site/
+docs/.bundle/
+docs/vendor/
+
+# Jekyll cache and metadata
+docs/.sass-cache/
+docs/.jekyll-cache/
+docs/.jekyll-metadata
