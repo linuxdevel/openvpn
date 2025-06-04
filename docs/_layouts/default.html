@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% if page.title %}{{ page.title }} - {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+    <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+    
+    <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: site.github.build_revision | relative_url }}">
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      {% if site.title and site.title != page.title %}
+      <h1><a href="{{ "/" | absolute_url }}">{{ site.title }}</a></h1>
+      {% endif %}
+
+      <!-- Navigation -->
+      <nav class="navigation">
+        <ul>
+          <li><a href="{{ '/' | relative_url }}" {% if page.url == '/' %}class="current"{% endif %}>🏠 Home</a></li>
+          <li><a href="{{ '/installation.html' | relative_url }}" {% if page.url contains 'installation' %}class="current"{% endif %}>🛠️ Installation</a></li>
+          <li><a href="{{ '/configuration.html' | relative_url }}" {% if page.url contains 'configuration' %}class="current"{% endif %}>⚙️ Configuration</a></li>
+          <li><a href="{{ '/troubleshooting.html' | relative_url }}" {% if page.url contains 'troubleshooting' %}class="current"{% endif %}>🔧 Troubleshooting</a></li>
+        </ul>
+      </nav>
+
+      {{ content }}
+
+      <!-- Footer -->
+      <hr>
+      <footer>
+        <p><small>
+          This documentation is for the <a href="{{ site.github.repository_url }}">{{ site.github.repository_name }}</a> project. 
+          <br>For issues or contributions, visit the <a href="{{ site.github.repository_url }}">GitHub repository</a>.
+        </small></p>
+      </footer>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>
+
+<style>
+.navigation {
+  background: #f8f9fa;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+  border: 1px solid #e1e4e8;
+}
+
+.navigation ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.navigation li {
+  margin: 0;
+}
+
+.navigation a {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid #d1d5da;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #24292e;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.navigation a:hover {
+  background: #0366d6;
+  color: white;
+  border-color: #0366d6;
+  text-decoration: none;
+}
+
+.navigation a.current {
+  background: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+@media (max-width: 768px) {
+  .navigation ul {
+    flex-direction: column;
+  }
+  
+  .navigation a {
+    text-align: center;
+  }
+}
+</style>

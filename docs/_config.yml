@@ -1,0 +1,20 @@
+# Site settings
+title: "OpenVPN Bridge Mode Documentation"
+description: "Complete guide for setting up OpenVPN server in bridge mode on Raspberry Pi/Linux"
+baseurl: "/openvpn" # the subpath of your site, e.g. /blog
+url: "https://linuxdevel.github.io" # the base hostname & protocol for your site
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
