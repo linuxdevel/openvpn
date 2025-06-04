@@ -9,23 +9,6 @@ markdown: kramdown
 highlighter: rouge
 theme: minima
 
-# Navigation
-nav:
-  - title: "Home"
-    url: "/"
-  - title: "Installation"
-    url: "/installation/"
-  - title: "Configuration"
-    url: "/configuration/"
-  - title: "Troubleshooting"
-    url: "/troubleshooting/"
-
-# Plugins
-plugins:
-  - jekyll-feed
-  - jekyll-sitemap
-  - jekyll-seo-tag
-
 # Exclude from processing
 exclude:
   - Gemfile
@@ -35,22 +18,3 @@ exclude:
   - vendor/cache/
   - vendor/gems/
   - vendor/ruby/
-
-# Collections
-collections:
-  guides:
-    output: true
-    permalink: /:collection/:name/
-
-# Defaults
-defaults:
-  - scope:
-      path: ""
-      type: "pages"
-    values:
-      layout: "default"
-  - scope:
-      path: ""
-      type: "guides"
-    values:
-      layout: "guide"
