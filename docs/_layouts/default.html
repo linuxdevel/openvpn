@@ -13,7 +13,7 @@
   <body>
     <div class="container-lg px-3 my-5 markdown-body">
       {% if site.title and site.title != page.title %}
-      <h1><a href="{{ "/" | absolute_url }}">{{ site.title }}</a></h1>
+      <h1><a href="{{ "/" | absolute_url }}" style="color: #f0f6fc !important; text-decoration: none;">{{ site.title }}</a></h1>
       {% endif %}
 
       <!-- Navigation -->
@@ -29,11 +29,11 @@
       {{ content }}
 
       <!-- Footer -->
-      <hr>
-      <footer>
+      <hr style="border-color: #30363d !important;">
+      <footer style="color: #8b949e !important;">
         <p><small>
-          This documentation is for the <a href="{{ site.github.repository_url }}">{{ site.github.repository_name }}</a> project. 
-          <br>For issues or contributions, visit the <a href="{{ site.github.repository_url }}">GitHub repository</a>.
+          This documentation is for the <a href="{{ site.github.repository_url }}" style="color: #58a6ff !important;">{{ site.github.repository_name }}</a> project. 
+          <br>For issues or contributions, visit the <a href="{{ site.github.repository_url }}" style="color: #58a6ff !important;">GitHub repository</a>.
         </small></p>
       </footer>
     </div>
@@ -44,11 +44,11 @@
 
 <style>
 .navigation {
-  background: #f8f9fa;
+  background: #161b22 !important;
   padding: 1rem;
   margin-bottom: 2rem;
   border-radius: 8px;
-  border: 1px solid #e1e4e8;
+  border: 1px solid #30363d !important;
 }
 
 .navigation ul {
@@ -67,26 +67,26 @@
 .navigation a {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: white;
-  border: 1px solid #d1d5da;
+  background: #21262d !important;
+  border: 1px solid #30363d !important;
   border-radius: 6px;
   text-decoration: none;
-  color: #24292e;
+  color: #c9d1d9 !important;
   font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .navigation a:hover {
-  background: #0366d6;
-  color: white;
-  border-color: #0366d6;
+  background: #58a6ff !important;
+  color: #0d1117 !important;
+  border-color: #58a6ff !important;
   text-decoration: none;
 }
 
 .navigation a.current {
-  background: #28a745;
-  color: white;
-  border-color: #28a745;
+  background: #3fb950 !important;
+  color: #0d1117 !important;
+  border-color: #3fb950 !important;
 }
 
 @media (max-width: 768px) {
