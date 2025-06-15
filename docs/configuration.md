@@ -15,6 +15,7 @@ This page covers the configuration steps needed to set up OpenVPN in bridge mode
 - [Step 8: Test the Configuration](#step-8-test-the-configuration)
 - [Step 9: Configure the Client](#step-9-configure-the-client)
 - [Step 10: Configure Router Port Forwarding](#step-10-configure-router-port-forwarding)
+- [Certificate Management](#certificate-management)
 
 ---
 
@@ -358,6 +359,227 @@ If any step fails, refer to the [Troubleshooting Guide](troubleshooting.html) fo
 
 ---
 
+## Certificate Management
+
+### Checking Certificate Expiry
+
+It's important to monitor your certificates and renew them before they expire to avoid service interruption.
+
+#### Check Server Certificate Expiry
+
+```bash
+# Check server certificate expiry date
+sudo openssl x509 -in /etc/openvpn/easy-rsa/pki/issued/server.crt -noout -dates
+
+# Alternative: Check with more details
+sudo openssl x509 -in /etc/openvpn/easy-rsa/pki/issued/server.crt -noout -text | grep -A 2 Validity
+```
+
+#### Check Client Certificate Expiry
+
+```bash
+# Check specific client certificate expiry
+sudo openssl x509 -in /etc/openvpn/easy-rsa/pki/issued/CLIENT_NAME.crt -noout -dates
+
+# List all client certificates with expiry dates
+for cert in /etc/openvpn/easy-rsa/pki/issued/*.crt; do
+    if [[ "$cert" != *"server.crt"* ]] && [[ "$cert" != *"ca.crt"* ]]; then
+        echo "Certificate: $(basename "$cert")"
+        sudo openssl x509 -in "$cert" -noout -dates
+        echo "---"
+    fi
+done
+```
+
+#### Check CA Certificate Expiry
+
+```bash
+# Check CA certificate expiry (most critical)
+sudo openssl x509 -in /etc/openvpn/easy-rsa/pki/ca.crt -noout -dates
+```
+
+### Regenerating Server Certificate
+
+**⚠️ Warning**: Regenerating the server certificate will temporarily interrupt VPN service and require updating all client configurations.
+
+#### Steps to Regenerate Server Certificate
+
+1. **Stop the OpenVPN service**:
+   ```bash
+   sudo systemctl stop openvpn-server@server
+   ```
+
+2. **Backup existing certificates**:
+   ```bash
+   sudo cp /etc/openvpn/easy-rsa/pki/issued/server.crt /etc/openvpn/easy-rsa/pki/issued/server.crt.backup
+   sudo cp /etc/openvpn/easy-rsa/pki/private/server.key /etc/openvpn/easy-rsa/pki/private/server.key.backup
+   ```
+
+3. **Revoke the old server certificate**:
+   ```bash
+   cd /etc/openvpn/easy-rsa/
+   sudo ./easyrsa --batch revoke server
+   ```
+
+4. **Generate new server certificate**:
+   ```bash
+   # Generate new server certificate with 10-year expiry
+   sudo EASYRSA_CERT_EXPIRE=3650 ./easyrsa --batch build-server-full server nopass
+   ```
+
+5. **Copy certificates to OpenVPN directory**:
+   ```bash
+   sudo cp pki/issued/server.crt /etc/openvpn/
+   sudo cp pki/private/server.key /etc/openvpn/
+   ```
+
+6. **Update CRL (Certificate Revocation List)**:
+   ```bash
+   sudo EASYRSA_CRL_DAYS=3650 ./easyrsa gen-crl
+   sudo cp pki/crl.pem /etc/openvpn/
+   sudo chmod 644 /etc/openvpn/crl.pem
+   ```
+
+7. **Start OpenVPN service**:
+   ```bash
+   sudo systemctl start openvpn-server@server
+   sudo systemctl status openvpn-server@server
+   ```
+
+8. **Verify the new certificate**:
+   ```bash
+   sudo openssl x509 -in /etc/openvpn/server.crt -noout -dates
+   ```
+
+### Regenerating Client Certificates
+
+Client certificate regeneration is simpler and doesn't affect other clients or require service restart.
+
+#### Steps to Regenerate a Client Certificate
+
+1. **Revoke the existing client certificate**:
+   ```bash
+   cd /etc/openvpn/easy-rsa/
+   sudo ./easyrsa --batch revoke CLIENT_NAME
+   ```
+
+2. **Update the CRL**:
+   ```bash
+   sudo EASYRSA_CRL_DAYS=3650 ./easyrsa gen-crl
+   sudo cp pki/crl.pem /etc/openvpn/
+   sudo chmod 644 /etc/openvpn/crl.pem
+   ```
+
+3. **Generate new client certificate**:
+   ```bash
+   # For passwordless certificate
+   sudo EASYRSA_CERT_EXPIRE=3650 ./easyrsa --batch build-client-full CLIENT_NAME nopass
+   
+   # For password-protected certificate
+   sudo EASYRSA_CERT_EXPIRE=3650 ./easyrsa --batch build-client-full CLIENT_NAME
+   ```
+
+4. **Generate new client configuration file**:
+   
+   You can either run the original Angristan script again to create a new client configuration:
+   ```bash
+   sudo ./openvpn-install.sh
+   # Choose option 1 to add a new client
+   ```
+   
+   Or manually create the configuration file:
+   ```bash
+   # Copy template and customize
+   sudo cp /etc/openvpn/client-template.txt /root/CLIENT_NAME.ovpn
+   
+   # Add certificates to the configuration file
+   {
+       echo "<ca>"
+       sudo cat /etc/openvpn/easy-rsa/pki/ca.crt
+       echo "</ca>"
+       echo "<cert>"
+       sudo openssl x509 -in /etc/openvpn/easy-rsa/pki/issued/CLIENT_NAME.crt
+       echo "</cert>"
+       echo "<key>"
+       sudo cat /etc/openvpn/easy-rsa/pki/private/CLIENT_NAME.key
+       echo "</key>"
+       echo "<tls-crypt>"
+       sudo cat /etc/openvpn/tls-crypt.key
+       echo "</tls-crypt>"
+   } >> /root/CLIENT_NAME.ovpn
+   ```
+
+5. **Modify the client configuration for bridge mode** (as described in [Step 9](#step-9-configure-the-client)):
+   ```bash
+   # Edit the .ovpn file to change from tun to tap
+   sudo sed -i 's/dev tun/dev tap/' /root/CLIENT_NAME.ovpn
+   echo "dev-type tap" | sudo tee -a /root/CLIENT_NAME.ovpn
+   ```
+
+### Best Practices for Certificate Management
+
+1. **Set Calendar Reminders**: Create reminders 3-6 months before certificate expiry
+2. **Monitor Regularly**: Check certificate expiry dates monthly
+3. **Backup Certificates**: Always backup certificates before making changes
+4. **Test New Certificates**: Test new client certificates before distributing them
+5. **Coordinate Renewals**: Plan server certificate renewals during maintenance windows
+6. **Keep Documentation**: Document when certificates were renewed and why
+
+### Certificate Renewal Automation
+
+For advanced users, consider creating a script to monitor certificate expiry:
+
+```bash
+#!/bin/bash
+# Certificate monitoring script
+# Place in /usr/local/bin/check-openvpn-certs.sh
+
+CERT_DIR="/etc/openvpn/easy-rsa/pki"
+WARN_DAYS=90
+
+echo "Checking OpenVPN certificate expiry dates..."
+
+# Check CA certificate
+ca_expiry=$(openssl x509 -in "$CERT_DIR/ca.crt" -noout -enddate | cut -d= -f2)
+ca_expiry_epoch=$(date -d "$ca_expiry" +%s)
+current_epoch=$(date +%s)
+days_until_ca_expiry=$(( (ca_expiry_epoch - current_epoch) / 86400 ))
+
+echo "CA Certificate expires in $days_until_ca_expiry days ($ca_expiry)"
+
+if [ $days_until_ca_expiry -lt $WARN_DAYS ]; then
+    echo "WARNING: CA certificate expires in less than $WARN_DAYS days!"
+fi
+
+# Check server certificate
+server_expiry=$(openssl x509 -in "$CERT_DIR/issued/server.crt" -noout -enddate | cut -d= -f2)
+server_expiry_epoch=$(date -d "$server_expiry" +%s)
+days_until_server_expiry=$(( (server_expiry_epoch - current_epoch) / 86400 ))
+
+echo "Server Certificate expires in $days_until_server_expiry days ($server_expiry)"
+
+if [ $days_until_server_expiry -lt $WARN_DAYS ]; then
+    echo "WARNING: Server certificate expires in less than $WARN_DAYS days!"
+fi
+```
+
+**To use this script**:
+```bash
+sudo chmod +x /usr/local/bin/check-openvpn-certs.sh
+sudo /usr/local/bin/check-openvpn-certs.sh
+```
+
+**Add to crontab for monthly checks**:
+```bash
+# Edit root's crontab
+sudo crontab -e
+
+# Add this line for monthly certificate checks
+0 0 1 * * /usr/local/bin/check-openvpn-certs.sh | mail -s "OpenVPN Certificate Status" admin@yourdomain.com
+```
+
+---
+
 ## Next Steps
 
 Once your VPN is working correctly:
@@ -366,5 +588,6 @@ Once your VPN is working correctly:
 2. **Set up monitoring** to track VPN usage and performance
 3. **Configure automatic backups** of your certificates and configuration
 4. **Consider additional security measures** like two-factor authentication
+5. **Implement certificate expiry monitoring** as described above
 
 For ongoing maintenance and troubleshooting, see the [Troubleshooting Guide](troubleshooting.html).
