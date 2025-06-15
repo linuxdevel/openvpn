@@ -354,6 +354,11 @@ sudo nano /etc/openvpn/server/server.conf
 | "Connection reset by peer" | Firewall or port forwarding | Check firewall rules, router config |
 | "AUTH_FAILED" | Authentication problems | Verify username/password, certificates |
 | "TLS Error: cannot locate HMAC" | Key configuration mismatch | Check ta.key configuration |
+| "certificate verify failed" | Expired or invalid certificates | Check certificate expiry, regenerate if needed |
+| "error=certificate has expired" | Certificate expired | Regenerate server or client certificate |
+| "SSL_read error" | Certificate trust issues | Verify CA and certificate chain |
+
+**For certificate-related issues**, see the detailed [Certificate Management section](configuration.html#certificate-management) in the Configuration Guide.
 
 ### Useful Log Analysis Commands
 

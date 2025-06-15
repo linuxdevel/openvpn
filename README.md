@@ -969,6 +969,10 @@ Bridge mode VPN setup provides powerful network extension capabilities, allowing
 - Test VPN connectivity periodically
 - Keep client configurations backed up
 - Document any configuration changes
+- **Monitor certificate expiry dates** and renew before expiration
+- Regularly check for OpenVPN and system updates
+
+For detailed certificate management procedures, see the [Certificate Management section](docs/configuration.md#certificate-management) in the Configuration Guide.
 
 By following this guide, you should have a robust OpenVPN bridge mode server that provides secure, seamless access to your home network from anywhere in the world.
 
