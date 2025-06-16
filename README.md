@@ -40,7 +40,6 @@ To avoid conflicts, choose a unique private IP range for your home network that 
 - `10.99.99.0/24` (10.99.99.1 - 10.99.99.254) - Excellent choice, rarely used
 - `172.16.100.0/24` (172.16.100.1 - 172.16.100.254) - Good alternative
 - `10.11.12.0/24` (10.11.12.1 - 10.11.12.254) - Another good option
-- `192.168.73.0/24` (192.168.73.1 - 192.168.73.254) - Less common 192.168.x range
 
 ## Example Network Configuration
 
@@ -59,16 +58,10 @@ If you choose `10.99.99.0/24` for your home network:
 - **VPN Client Range**: `10.11.12.200` - `10.11.12.210`
 - **DNS**: Consider setting up `vpn.mydnsdomain.biz` pointing to your public IP
 
-### 192.168.73.0/24 Network (Less common 192.168.x range)
-- **Router IP**: `192.168.73.1`
-- **OpenVPN Server IP**: `192.168.73.18`
-- **DHCP Range**: `192.168.73.100` - `192.168.73.199`
-- **VPN Client Range**: `192.168.73.230` - `192.168.73.240`
-
 ### Network Assumptions
 When setting up your VPN, consider these common scenarios:
 - **Client's network**: `192.168.0.1/24` (typical hotel, office, or public WiFi)
-- **Your home network**: `10.11.12.0/24` or `192.168.73.0/24` (to avoid conflicts)
+- **Your home network**: `10.11.12.0/24` (to avoid conflicts)
 - **Custom DNS**: Set up a DNS record like `vpn.mydnsdomain.biz` for easy connection
 
 ## Why This Matters
@@ -408,11 +401,6 @@ server-bridge 192.168.1.134 255.255.255.0 192.168.1.200 192.168.1.210
 server-bridge 10.11.12.2 255.255.255.0 10.11.12.200 10.11.12.210
 ```
 
-**For 192.168.73.0/24 network**:
-```conf
-server-bridge 192.168.73.18 255.255.255.0 192.168.73.230 192.168.73.240
-```
-
 ### Cipher Configuration
 
 Modern OpenVPN versions use `data-ciphers` instead of the older `ncp-ciphers`. Your configuration may need:
@@ -728,7 +716,7 @@ You should see output showing the bridge interface (br0) with your ethernet inte
    - **Service Name**: OpenVPN or VPN Server
    - **Protocol**: UDP (recommended) or TCP (if you changed it during installation)
    - **External Port**: 1194 (default) or custom port like 11194
-   - **Internal IP**: Your Raspberry Pi's IP (e.g., 10.99.99.134, 10.11.12.2, or 192.168.73.18)
+   - **Internal IP**: Your Raspberry Pi's IP (e.g., 10.99.99.134, 10.11.12.2)
    - **Internal Port**: 1194 (default) or custom port like 11194
 
 ### Example Port Forwarding Configurations
@@ -810,7 +798,6 @@ If your ISP changes your IP address frequently:
 2. **Alternative network ranges**:
    - `172.16.100.0/24` - Another good choice
    - `10.11.12.0/24` - Less commonly used range  
-   - `192.168.73.0/24` - Alternative 192.168.x range
    - Avoid common ranges like `192.168.1.0/24`, `192.168.0.0/24`, `10.0.0.0/24`
 
 3. **Quick test for conflicts**:

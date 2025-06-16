@@ -56,7 +56,6 @@ To avoid conflicts, choose a unique private IP range for your home network that 
 - `10.99.99.0/24` (10.99.99.1 - 10.99.99.254) - Excellent choice, rarely used
 - `172.16.100.0/24` (172.16.100.1 - 172.16.100.254) - Good alternative
 - `10.11.12.0/24` (10.11.12.1 - 10.11.12.254) - Another good option
-- `192.168.73.0/24` (192.168.73.1 - 192.168.73.254) - Less common 192.168.x range
 
 ### Example Network Configuration
 
@@ -73,12 +72,6 @@ If you choose `10.99.99.0/24` for your home network:
 - **OpenVPN Server IP**: `10.11.12.2`
 - **DHCP Range**: `10.11.12.100` - `10.11.12.199`
 - **VPN Client Range**: `10.11.12.200` - `10.11.12.210`
-
-**192.168.73.0/24 Network** (less common 192.168.x range):
-- **Router IP**: `192.168.73.1`
-- **OpenVPN Server IP**: `192.168.73.18`
-- **DHCP Range**: `192.168.73.100` - `192.168.73.199`
-- **VPN Client Range**: `192.168.73.230` - `192.168.73.240`
 
 ### Network Planning Assumptions
 

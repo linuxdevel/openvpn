@@ -75,11 +75,6 @@ server-bridge 172.16.100.134 255.255.255.0 172.16.100.200 172.16.100.210
 server-bridge 10.11.12.2 255.255.255.0 10.11.12.200 10.11.12.210
 ```
 
-#### For network 192.168.73.0/24:
-```conf
-server-bridge 192.168.73.18 255.255.255.0 192.168.73.230 192.168.73.240
-```
-
 ### Cipher Configuration
 
 Modern OpenVPN installations may require `data-ciphers` instead of `ncp-ciphers`:
@@ -340,7 +335,6 @@ ip route show default
 
 **Custom Port with Different Networks**:
 - External: 11194 UDP → Internal: 10.11.12.2:11194
-- External: 11194 UDP → Internal: 192.168.73.18:11194
 
 **DNS Recommendation**: Set up a DNS record like `vpn.mydnsdomain.biz` pointing to your public IP for easier client configuration.
 
