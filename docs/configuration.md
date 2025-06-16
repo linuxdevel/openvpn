@@ -70,6 +70,32 @@ server-bridge 10.99.99.134 255.255.255.0 10.99.99.200 10.99.99.210
 server-bridge 172.16.100.134 255.255.255.0 172.16.100.200 172.16.100.210
 ```
 
+#### For network 10.11.12.0/24:
+```conf
+server-bridge 10.11.12.2 255.255.255.0 10.11.12.200 10.11.12.210
+```
+
+#### For network 192.168.73.0/24:
+```conf
+server-bridge 192.168.73.18 255.255.255.0 192.168.73.230 192.168.73.240
+```
+
+### Cipher Configuration
+
+Modern OpenVPN installations may require `data-ciphers` instead of `ncp-ciphers`:
+
+```conf
+# Add or update these lines in your server configuration
+cipher AES-256-CBC
+data-ciphers AES-256-CBC
+
+# For compatibility, you might also use:
+# data-ciphers AES-256-CBC:AES-256-GCM
+# cipher AES-256-CBC
+```
+
+**Note**: If you encounter "Cannot negotiate cipher" errors, ensure both server and client use `data-ciphers AES-256-CBC` and `cipher AES-256-CBC`.
+
 ### Understanding the Configuration
 
 - **`dev tap0`**: Creates a TAP (Layer 2) interface instead of TUN (Layer 3)
@@ -242,8 +268,8 @@ ip route show default
 
    **Add or modify these lines**:
    ```conf
-   # Change from 'dev tun' to 'dev tap'
-   dev tap
+   # Change from 'dev tun' to 'dev tap0'
+   dev tap0
    
    # Remove or comment out these lines if present:
    #pull
@@ -251,6 +277,9 @@ ip route show default
    
    # Add these lines for bridge mode:
    dev-type tap
+   
+   # Update cipher configuration if needed:
+   data-ciphers AES-256-CBC
    ```
 
 ### Additional Client Settings
@@ -299,10 +328,21 @@ ip route show default
 
 3. **Create a new port forwarding rule**:
    - **Service Name**: OpenVPN
-   - **External Port**: 1194 (or the port you chose during installation)
+   - **External Port**: 1194 (default) or custom port like 11194
    - **Internal IP**: 10.99.99.134 (your Raspberry Pi's IP)
-   - **Internal Port**: 1194
+   - **Internal Port**: 1194 (or matching custom port)
    - **Protocol**: UDP
+
+### Example Configurations
+
+**Standard Configuration**:
+- External: 1194 UDP → Internal: 10.99.99.134:1194
+
+**Custom Port with Different Networks**:
+- External: 11194 UDP → Internal: 10.11.12.2:11194
+- External: 11194 UDP → Internal: 192.168.73.18:11194
+
+**DNS Recommendation**: Set up a DNS record like `vpn.mydnsdomain.biz` pointing to your public IP for easier client configuration.
 
 ### Security Considerations
 
@@ -323,7 +363,7 @@ ip route show default
 
 4. **Use an online port checker**:
    - Visit a port checking website like portchecker.co
-   - Enter your external IP and port 1194
+   - Enter your external IP and port (1194 or your custom port like 11194)
    - Should show "Open" if configured correctly
 
 5. **Test from external network**:

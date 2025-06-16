@@ -1,0 +1,33 @@
+# OpenVPN client configuration template for bridge mode
+# Updated based on successful VPN deployment
+
+client
+proto udp
+explicit-exit-notify
+remote la9vpa.myftp.biz 11194
+dev tap0
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+remote-cert-tls server
+verify-x509-name server_6zk3mhKZM26FrQWr name
+auth SHA384
+auth-nocache
+data-ciphers AES-256-CBC
+tls-client
+tls-version-min 1.2
+tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384
+ignore-unknown-option block-outside-dns
+setenv opt block-outside-dns # Prevent Windows 10 DNS leak
+verb 3
+
+# Certificate and key sections will be added by the installation script
+# <ca>
+# </ca>
+# <cert>
+# </cert>
+# <key>
+# </key>
+# <tls-crypt>
+# </tls-crypt>
