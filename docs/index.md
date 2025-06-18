@@ -78,7 +78,7 @@ If you choose `10.99.99.0/24` for your home network:
 When setting up your VPN, consider these typical scenarios:
 - **Client's network**: `192.168.0.1/24` (common in hotels, offices, public WiFi)
 - **Your home network**: Choose one of the recommended ranges above
-- **DNS setup**: Consider configuring a DNS record like `vpn.mydnsdomain.biz`
+- **DNS setup**: Consider configuring a DNS record like `myvpn-63864.duckdns.org`
 - **Port configuration**: Default port 1194 or custom port like 11194
 
 ### Why This Matters

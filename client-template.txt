@@ -4,7 +4,7 @@
 client
 proto udp
 explicit-exit-notify
-remote la9vpa.myftp.biz 11194
+remote myvpn-63864.duckdns.org 11194
 dev tap0
 resolv-retry infinite
 nobind
