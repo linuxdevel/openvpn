@@ -65,6 +65,22 @@ If you choose `10.99.99.0/24` for your home network:
 - **DHCP Range**: `10.99.99.100` - `10.99.99.199`
 - **VPN Client Range**: `10.99.99.200` - `10.99.99.210`
 
+### Alternative Network Examples
+
+**10.11.12.0/24 Network** (recommended for avoiding conflicts):
+- **Router IP**: `10.11.12.1`
+- **OpenVPN Server IP**: `10.11.12.2`
+- **DHCP Range**: `10.11.12.100` - `10.11.12.199`
+- **VPN Client Range**: `10.11.12.200` - `10.11.12.210`
+
+### Network Planning Assumptions
+
+When setting up your VPN, consider these typical scenarios:
+- **Client's network**: `192.168.0.1/24` (common in hotels, offices, public WiFi)
+- **Your home network**: Choose one of the recommended ranges above
+- **DNS setup**: Consider configuring a DNS record like `myvpn-63864.duckdns.org`
+- **Port configuration**: Default port 1194 or custom port like 11194
+
 ### Why This Matters
 
 When you connect to your home VPN from a remote location (hotel, office, etc.), if both networks use the same IP range like `192.168.1.0/24`, your device won't know whether to route traffic locally or through the VPN. Using a unique range like `10.99.99.0/24` eliminates this confusion.
