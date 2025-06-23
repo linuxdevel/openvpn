@@ -70,11 +70,6 @@ server-bridge 10.11.12.2 255.255.255.0 10.11.12.200 10.11.12.210
 server-bridge 172.16.100.134 255.255.255.0 172.16.100.200 172.16.100.210
 ```
 
-#### For network 10.11.12.0/24:
-```conf
-server-bridge 10.11.12.2 255.255.255.0 10.11.12.200 10.11.12.210
-```
-
 ### Cipher Configuration
 
 Modern OpenVPN installations may require `data-ciphers` instead of `ncp-ciphers`:
