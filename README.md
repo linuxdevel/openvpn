@@ -49,6 +49,21 @@ If you choose `10.99.99.0/24` for your home network:
 - **DHCP Range**: `10.99.99.100` - `10.99.99.199`
 - **VPN Client Range**: `10.99.99.200` - `10.99.99.210`
 
+## Alternative Network Examples
+
+### 10.11.12.0/24 Network (Recommended for avoiding conflicts)
+- **Router IP**: `10.11.12.1` (gateway)
+- **OpenVPN Server IP**: `10.11.12.2`
+- **DHCP Range**: `10.11.12.100` - `10.11.12.199`
+- **VPN Client Range**: `10.11.12.200` - `10.11.12.210`
+- **DNS**: Consider setting up `myvpn-63864.duckdns.org` pointing to your public IP
+
+### Network Assumptions
+When setting up your VPN, consider these common scenarios:
+- **Client's network**: `192.168.0.1/24` (typical hotel, office, or public WiFi)
+- **Your home network**: `10.11.12.0/24` (to avoid conflicts)
+- **Custom DNS**: Set up a DNS record like `myvpn-63864.duckdns.org` for easy connection
+
 ## Why This Matters
 
 When you connect to your home VPN from a remote location (hotel, office, etc.), if both networks use the same IP range like `192.168.1.0/24`, your device won't know whether to route traffic locally or through the VPN. Using a unique range like `10.99.99.0/24` eliminates this confusion.
@@ -295,12 +310,19 @@ When prompted, use these recommended settings:
 
 - **IP address**: Accept the detected IP (your Raspberry Pi's IP)
 - **Public IPv4/IPv6 address**: Your public IP or Dynamic DNS hostname
-- **Port**: `1194` (default) or choose a custom port for security
+- **Port**: `1194` (default) or choose a custom port like `11194` for security
 - **Protocol**: `UDP` (recommended for performance)
 - **DNS**: Choose `8` for Google DNS (8.8.8.8, 8.8.4.4)
 - **Compression**: `n` (disable for better security)
 - **Customize encryption settings**: `n` (defaults are secure)
 - **Client name**: Enter a descriptive name (e.g., "home-client")
+
+### Port Configuration Notes
+
+**Using Custom Ports**: Many users prefer using non-standard ports like `11194` instead of the default `1194` for additional security through obscurity. If you choose a custom port:
+- Update your router's port forwarding to forward external port `11194` to internal port `11194`
+- Ensure your firewall forwards UDP traffic from port `11194` to the OpenVPN server on port `11194`
+- Update client configurations to connect to the custom port
 
 ### Key Security Recommendations
 
@@ -373,6 +395,27 @@ server-bridge 10.99.99.134 255.255.255.0 10.99.99.200 10.99.99.210
 ```conf
 server-bridge 192.168.1.134 255.255.255.0 192.168.1.200 192.168.1.210
 ```
+
+**For 10.11.12.0/24 network**:
+```conf
+server-bridge 10.11.12.2 255.255.255.0 10.11.12.200 10.11.12.210
+```
+
+### Cipher Configuration
+
+Modern OpenVPN versions use `data-ciphers` instead of the older `ncp-ciphers`. Your configuration may need:
+
+```conf
+# Modern approach (OpenVPN 2.5+)
+data-ciphers AES-256-CBC:AES-256-GCM
+cipher AES-256-CBC
+
+# Or for maximum compatibility
+data-ciphers AES-256-CBC
+cipher AES-256-CBC
+```
+
+**Note**: If you encounter cipher negotiation issues, using `AES-256-CBC` with `data-ciphers` instead of `AES-256-GCM` may provide better compatibility with various clients.
 
 ### Understanding the Configuration
 
@@ -580,26 +623,41 @@ You should see output showing the bridge interface (br0) with your ethernet inte
    ```
    Replace with:
    ```conf
-   dev tap
+   dev tap0
+   ```
+   
+   **Note**: Use `tap0` (not just `tap`) to match the server configuration for bridge mode.
+
+4. **Update cipher configuration** (if needed):
+   
+   If you encounter connection issues, you may need to update the cipher configuration:
+   ```conf
+   # Replace 'cipher' line with 'data-ciphers' if present
+   data-ciphers AES-256-CBC
    ```
 
-4. **Verify the remote server address**:
+5. **Verify the remote server address**:
    
    Ensure the `remote` line contains your correct public IP or Dynamic DNS hostname:
    ```conf
    remote your-public-ip-or-ddns 1194
    ```
+   
+   **For custom ports**, update accordingly:
+   ```conf
+   remote myvpn-63864.duckdns.org 11194
+   ```
 
 ### Additional Client Settings
 
-5. **Optional: Add Windows-specific settings** (if using Windows clients):
+6. **Optional: Add Windows-specific settings** (if using Windows clients):
    ```conf
    # Windows-specific TAP adapter settings
    route-method exe
    route-delay 2
    ```
 
-6. **Optional: Add DNS push settings** (if not already present):
+7. **Optional: Add DNS push settings** (if not already present):
    ```conf
    # Ensure clients use proper DNS
    dhcp-option DNS 8.8.8.8
@@ -608,11 +666,11 @@ You should see output showing the bridge interface (br0) with your ethernet inte
 
 ### Client Installation
 
-7. **Transfer the client file** to your client device:
+8. **Transfer the client file** to your client device:
    - Use `scp` to copy from your Pi: `scp pi@<pi-ip>:client.ovpn .`
    - Or copy the content and paste into a new file
 
-8. **Import into OpenVPN client**:
+9. **Import into OpenVPN client**:
    - **Windows**: Use OpenVPN GUI or OpenVPN Connect
    - **macOS**: Use Tunnelblick or OpenVPN Connect
    - **Linux**: Use NetworkManager or command line
@@ -620,13 +678,13 @@ You should see output showing the bridge interface (br0) with your ethernet inte
 
 ### Test the Configuration
 
-9. **Start OpenVPN server** (if not already running):
-   ```bash
-   sudo systemctl start openvpn-server@server
-   sudo systemctl enable openvpn-server@server
-   ```
+10. **Start OpenVPN server** (if not already running):
+    ```bash
+    sudo systemctl start openvpn-server@server
+    sudo systemctl enable openvpn-server@server
+    ```
 
-10. **Verify server status**:
+11. **Verify server status**:
     ```bash
     sudo systemctl status openvpn-server@server
     sudo journalctl -u openvpn-server@server -f
@@ -657,20 +715,33 @@ You should see output showing the bridge interface (br0) with your ethernet inte
 4. **Create a new forwarding rule**:
    - **Service Name**: OpenVPN or VPN Server
    - **Protocol**: UDP (recommended) or TCP (if you changed it during installation)
-   - **External Port**: 1194 (or custom port you chose)
-   - **Internal IP**: Your Raspberry Pi's IP (e.g., 10.99.99.134)
-   - **Internal Port**: 1194 (or custom port you chose)
+   - **External Port**: 1194 (default) or custom port like 11194
+   - **Internal IP**: Your Raspberry Pi's IP (e.g., 10.99.99.134, 10.11.12.2)
+   - **Internal Port**: 1194 (default) or custom port like 11194
+
+### Example Port Forwarding Configurations
+
+**Standard Configuration**:
+- External Port: 1194 UDP → Internal IP: 10.99.99.134 Port: 1194
+
+**Custom Port Configuration**:
+- External Port: 11194 UDP → Internal IP: 10.11.12.2 Port: 11194
+
+**Firewall Note**: Ensure your router's firewall forwards UDP traffic from the external port to the OpenVPN server on the same port number.
 
 ### Security Considerations
 
 5. **Use a non-standard port** (recommended):
-   - Change from default 1194 to a custom port (e.g., 21194, 443, 8080)
+   - Change from default 1194 to a custom port (e.g., 11194, 21194, 443, 8080)
    - Update both router forwarding rule and OpenVPN configuration
    - Edit `/etc/openvpn/server.conf`:
      ```conf
-     port 21194
+     port 11194
      ```
-   - Update client configuration accordingly
+   - Update client configuration accordingly:
+     ```conf
+     remote myvpn-63864.duckdns.org 11194
+     ```
 
 6. **Restrict access by IP** (if supported):
    - Some routers allow restricting port forwarding to specific source IPs
@@ -726,7 +797,7 @@ If your ISP changes your IP address frequently:
 
 2. **Alternative network ranges**:
    - `172.16.100.0/24` - Another good choice
-   - `10.11.12.0/24` - Less commonly used range
+   - `10.11.12.0/24` - Less commonly used range  
    - Avoid common ranges like `192.168.1.0/24`, `192.168.0.0/24`, `10.0.0.0/24`
 
 3. **Quick test for conflicts**:

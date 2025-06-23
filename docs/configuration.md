@@ -48,7 +48,7 @@ This page covers the configuration steps needed to set up OpenVPN in bridge mode
    # Bridge mode configuration
    dev tap0
    dev-type tap
-   server-bridge 10.99.99.134 255.255.255.0 10.99.99.200 10.99.99.210
+   server-bridge 10.11.12.2 255.255.255.0 10.11.12.200 10.11.12.210
    
    # Bridge scripts
    up "/etc/openvpn/bridge_start.sh"
@@ -60,9 +60,9 @@ This page covers the configuration steps needed to set up OpenVPN in bridge mode
 
 ### Example Configurations
 
-#### For network 10.99.99.0/24:
+#### For network 10.11.12.0/24:
 ```conf
-server-bridge 10.99.99.134 255.255.255.0 10.99.99.200 10.99.99.210
+server-bridge 10.11.12.2 255.255.255.0 10.11.12.200 10.11.12.210
 ```
 
 #### For network 172.16.100.0/24:
@@ -70,15 +70,36 @@ server-bridge 10.99.99.134 255.255.255.0 10.99.99.200 10.99.99.210
 server-bridge 172.16.100.134 255.255.255.0 172.16.100.200 172.16.100.210
 ```
 
+#### For network 10.11.12.0/24:
+```conf
+server-bridge 10.11.12.2 255.255.255.0 10.11.12.200 10.11.12.210
+```
+
+### Cipher Configuration
+
+Modern OpenVPN installations may require `data-ciphers` instead of `ncp-ciphers`:
+
+```conf
+# Add or update these lines in your server configuration
+cipher AES-256-CBC
+data-ciphers AES-256-CBC
+
+# For compatibility, you might also use:
+# data-ciphers AES-256-CBC:AES-256-GCM
+# cipher AES-256-CBC
+```
+
+**Note**: If you encounter "Cannot negotiate cipher" errors, ensure both server and client use `data-ciphers AES-256-CBC` and `cipher AES-256-CBC`.
+
 ### Understanding the Configuration
 
 - **`dev tap0`**: Creates a TAP (Layer 2) interface instead of TUN (Layer 3)
 - **`dev-type tap`**: Explicitly specifies TAP mode
 - **`server-bridge`**: Defines the bridge configuration:
-  - `10.99.99.134`: Server IP address (your Raspberry Pi's IP)
+  - `10.11.12.2`: Server IP address (your Raspberry Pi's IP)
   - `255.255.255.0`: Subnet mask
-  - `10.99.99.200`: Start of VPN client IP range
-  - `10.99.99.210`: End of VPN client IP range
+  - `10.11.12.200`: Start of VPN client IP range
+  - `10.11.12.210`: End of VPN client IP range
 - **`up/down`**: Scripts to run when the VPN starts/stops
 - **`script-security 2`**: Allows execution of bridge scripts
 
@@ -119,22 +140,22 @@ The bridge script creates a network bridge that connects your physical network i
    ```bash
    # Define physical ethernet interface to be bridged
    eth="eth0"                    # Your network interface name
-   eth_ip="10.99.99.134"        # Your Raspberry Pi's IP
+   eth_ip="10.11.12.2"          # Your Raspberry Pi's IP
    eth_netmask="255.255.255.0"  # Your network mask
-   eth_broadcast="10.99.99.255" # Your broadcast address
-   eth_gateway="10.99.99.1"     # Your router's IP
+   eth_broadcast="10.11.12.255" # Your broadcast address
+   eth_gateway="10.11.12.1"     # Your router's IP
    eth_mac="e4:5f:01:75:0b:9e"  # Your Pi's MAC address
    ```
 
 ### Example Configurations
 
-#### For network 10.99.99.0/24:
+#### For network 10.11.12.0/24:
 ```bash
 eth="eth0"
-eth_ip="10.99.99.134"
+eth_ip="10.11.12.2"
 eth_netmask="255.255.255.0"
-eth_broadcast="10.99.99.255"
-eth_gateway="10.99.99.1"
+eth_broadcast="10.11.12.255"
+eth_gateway="10.11.12.1"
 eth_mac="aa:bb:cc:dd:ee:ff"  # Replace with your actual MAC
 ```
 
@@ -217,7 +238,7 @@ ip route show default
 5. **Verify network connectivity**:
    ```bash
    ping google.com
-   ping 10.99.99.1  # Your router
+   ping 10.11.12.1  # Your router
    ```
 
 ### Common Issues and Solutions
@@ -230,26 +251,80 @@ ip route show default
 
 ## Step 9: Configure the Client
 
-### Modify Client Configuration
+### Modify Client Template (Before Creating Users)
 
-1. **Download the client configuration file** from your Raspberry Pi:
+**Important**: The client template file is automatically installed at `/etc/openvpn/client-template.txt` during the initial OpenVPN setup. You need to modify this template **before** creating any client configurations, as it's used to generate each user's `.ovpn` file.
+
+1. **Edit the client template file**:
    ```bash
-   scp pi@10.99.99.134:~/client-name.ovpn ./
+   sudo nano /etc/openvpn/client-template.txt
    ```
 
-2. **Edit the client configuration file**:
-   Open the `.ovpn` file in a text editor and make these changes:
+2. **Make these essential changes for bridge mode**:
 
-   **Add or modify these lines**:
+   **Change the device setting**:
    ```conf
-   # Change from 'dev tun' to 'dev tap'
-   dev tap
-   
-   # Remove or comment out these lines if present:
-   #pull
-   #redirect-gateway def1
-   
-   # Add these lines for bridge mode:
+   # Find the line that says 'dev tun' or 'dev tap' and change it to:
+   dev tap0
+   ```
+
+   **Update the remote server setting**:
+   ```conf
+   # Find the line starting with 'remote' and change it to your server:
+   remote myvpn-63864.duckdns.org 11194
+   # OR use your public IP if not using Dynamic DNS:
+   # remote YOUR_PUBLIC_IP 11194
+   ```
+
+   **Update cipher configuration**:
+   ```conf
+   # Find the line starting with 'cipher' and change it to:
+   data-ciphers AES-256-CBC
+   ```
+
+### After Template Modification
+
+3. **Create client configurations**:
+   Once the template is modified, run the OpenVPN installer script to add users:
+   ```bash
+   sudo ./openvpn-install.sh
+   # Choose option 1 to add a client
+   ```
+
+   The generated `.ovpn` files will automatically include your bridge mode settings.
+
+### Modify Existing Client Configurations
+
+If you already have client configurations that need to be updated:
+
+4. **Download existing client configuration files** from your Raspberry Pi:
+   ```bash
+   scp pi@10.11.12.2:~/client-name.ovpn ./
+   ```
+
+5. **Edit each existing client configuration file**:
+   Open the `.ovpn` file in a text editor and make the same changes as above:
+
+   **Change device setting**:
+   ```conf
+   # Change from 'dev tun' to 'dev tap0'
+   dev tap0
+   ```
+
+   **Update remote server**:
+   ```conf
+   remote myvpn-63864.duckdns.org 11194
+   ```
+
+   **Update cipher configuration**:
+   ```conf
+   # Change 'cipher' to 'data-ciphers'
+   data-ciphers AES-256-CBC
+   ```
+
+   **Add device type for bridge mode**:
+   ```conf
+   # Add this line for bridge mode:
    dev-type tap
    ```
 
@@ -258,7 +333,7 @@ ip route show default
 3. **Optional: Add specific routes** if you only want to access certain networks:
    ```conf
    # Route only specific networks through VPN
-   route 10.99.99.0 255.255.255.0
+   route 10.11.12.0 255.255.255.0
    ```
 
 4. **Optional: Configure DNS** (add these lines if you want to use specific DNS servers):
@@ -277,7 +352,7 @@ ip route show default
 ### Test the Configuration
 
 5. **Connect with the client** and verify:
-   - You receive an IP in the range 10.99.99.200-210
+   - You receive an IP in the range 10.11.12.200-210
    - You can ping devices on the local network
    - You can access local services (file shares, printers, etc.)
 
@@ -288,7 +363,7 @@ ip route show default
 ### Access Router Configuration
 
 1. **Open your router's admin interface**:
-   - Usually accessible at `http://10.99.99.1` or `http://192.168.1.1`
+   - Usually accessible at `http://10.11.12.1` or `http://192.168.1.1`
    - Login with your router's admin credentials
 
 ### Configure Port Forwarding
@@ -299,10 +374,20 @@ ip route show default
 
 3. **Create a new port forwarding rule**:
    - **Service Name**: OpenVPN
-   - **External Port**: 1194 (or the port you chose during installation)
-   - **Internal IP**: 10.99.99.134 (your Raspberry Pi's IP)
-   - **Internal Port**: 1194
+   - **External Port**: 1194 (default) or custom port like 11194
+   - **Internal IP**: 10.11.12.2 (your Raspberry Pi's IP)
+   - **Internal Port**: 1194 (or matching custom port)
    - **Protocol**: UDP
+
+### Example Configurations
+
+**Standard Configuration**:
+- External: 1194 UDP → Internal: 10.11.12.2:1194
+
+**Custom Port with Different Networks**:
+- External: 11194 UDP → Internal: 10.11.12.2:11194
+
+**DNS Recommendation**: Set up a DNS record like `myvpn-63864.duckdns.org` pointing to your public IP for easier client configuration.
 
 ### Security Considerations
 
@@ -323,23 +408,225 @@ ip route show default
 
 4. **Use an online port checker**:
    - Visit a port checking website like portchecker.co
-   - Enter your external IP and port 1194
+   - Enter your external IP and port (1194 or your custom port like 11194)
    - Should show "Open" if configured correctly
 
 5. **Test from external network**:
    - Try connecting to your VPN from a mobile hotspot or different network
    - Should be able to connect and access local resources
 
-### Dynamic DNS (Optional but Recommended)
+### Dynamic DNS Setup (Recommended)
 
-If your ISP assigns dynamic IP addresses, consider setting up Dynamic DNS:
+Dynamic DNS allows you to access your VPN using a domain name like `myvpn-63864.duckdns.org` instead of remembering your changing public IP address.
 
-6. **Choose a Dynamic DNS provider**:
-   - **DuckDNS**: Free and simple
-   - **No-IP**: Free with limitations
-   - **CloudFlare**: Free tier available
+#### Why You Need Dynamic DNS
 
-7. **Configure Dynamic DNS** on your router or Raspberry Pi to automatically update your hostname when your IP changes.
+Most residential internet connections have dynamic (changing) IP addresses. Without Dynamic DNS:
+- Your public IP changes periodically
+- You'd need to update client configurations every time
+- Connection becomes unreliable and inconvenient
+
+#### Step 1: Choose a Dynamic DNS Provider
+
+**Recommended: DuckDNS (Free and Simple)**
+- Visit [duckdns.org](https://www.duckdns.org)
+- Sign in with Google, Reddit, or GitHub
+- Create a subdomain like `myvpn-63864` (full domain: `myvpn-63864.duckdns.org`)
+- Note your token for configuration
+
+**Alternatives:**
+- **No-IP**: Free with limitations, requires monthly confirmation
+- **CloudFlare**: Free tier with advanced features
+- **Dynu**: Free with good features
+
+#### Step 2: Configure Dynamic DNS Client
+
+**Option A: Router Configuration (Recommended)**
+
+Most modern routers support Dynamic DNS natively:
+
+1. **Access router admin panel**:
+   ```
+   http://10.11.12.1 (or your router's IP)
+   ```
+
+2. **Navigate to Dynamic DNS settings**:
+   - **Linksys**: Smart Wi-Fi Setup → Internet Settings → Dynamic DNS
+   - **Netgear**: Dynamic DNS → DDNS Service
+   - **TP-Link**: Advanced → Network → Dynamic DNS
+   - **ASUS**: WAN → DDNS → Enable the DDNS Client
+   - **D-Link**: Setup → Network Settings → Dynamic DNS
+
+3. **Configure DuckDNS settings**:
+   ```
+   Service Provider: DuckDNS (or Custom/Other)
+   Hostname: myvpn-63864.duckdns.org
+   Username: nouser (DuckDNS doesn't use username)
+   Password: your_duckdns_token
+   ```
+
+4. **Save and apply** the configuration
+
+**Option B: Raspberry Pi Configuration**
+
+If your router doesn't support Dynamic DNS, configure it on the Raspberry Pi:
+
+1. **Install Dynamic DNS client**:
+   ```bash
+   sudo apt update
+   sudo apt install ddclient curl -y
+   ```
+
+2. **Create DuckDNS update script**:
+   ```bash
+   sudo nano /usr/local/bin/duckdns-update.sh
+   ```
+
+3. **Add script content**:
+   ```bash
+   #!/bin/bash
+   # DuckDNS Dynamic IP Update Script
+   
+   DOMAIN="myvpn-63864"
+   TOKEN="your_duckdns_token_here"
+   
+   # Get current public IP
+   CURRENT_IP=$(curl -s ifconfig.me)
+   
+   # Update DuckDNS
+   curl -s "https://www.duckdns.org/update?domains=$DOMAIN&token=$TOKEN&ip=$CURRENT_IP"
+   
+   # Log the update
+   echo "$(date): Updated $DOMAIN.duckdns.org to $CURRENT_IP" >> /var/log/duckdns.log
+   ```
+
+4. **Make script executable**:
+   ```bash
+   sudo chmod +x /usr/local/bin/duckdns-update.sh
+   ```
+
+5. **Test the script**:
+   ```bash
+   sudo /usr/local/bin/duckdns-update.sh
+   ```
+
+6. **Set up automatic updates with cron**:
+   ```bash
+   sudo crontab -e
+   ```
+   
+   Add this line to update every 5 minutes:
+   ```
+   */5 * * * * /usr/local/bin/duckdns-update.sh >/dev/null 2>&1
+   ```
+
+**Option C: Alternative No-IP Setup**
+
+If using No-IP instead of DuckDNS:
+
+1. **Install No-IP client**:
+   ```bash
+   cd /usr/local/src
+   sudo wget http://www.no-ip.com/client/linux/noip-duc-linux.tar.gz
+   sudo tar xzf noip-duc-linux.tar.gz
+   cd noip-2.1.9-1
+   sudo make install
+   ```
+
+2. **Configure No-IP**:
+   ```bash
+   sudo /usr/local/bin/noip2 -C
+   ```
+   Enter your No-IP credentials and hostname
+
+3. **Set up as service**:
+   ```bash
+   sudo systemctl enable noip2
+   sudo systemctl start noip2
+   ```
+
+#### Step 3: Verify Dynamic DNS Setup
+
+1. **Check current public IP**:
+   ```bash
+   curl ifconfig.me
+   ```
+
+2. **Verify DNS resolution**:
+   ```bash
+   nslookup myvpn-63864.duckdns.org
+   dig myvpn-63864.duckdns.org
+   ```
+
+3. **Test from external network**:
+   - Use a different network (mobile hotspot)
+   - Try to resolve your domain name
+   - Should return your current public IP
+
+#### Step 4: Update OpenVPN Configuration
+
+Once Dynamic DNS is working, update your client configurations:
+
+1. **Edit client template for future users**:
+   ```bash
+   sudo nano /etc/openvpn/client-template.txt
+   ```
+   
+   Update the remote line:
+   ```conf
+   remote myvpn-63864.duckdns.org 11194
+   ```
+
+#### Troubleshooting Dynamic DNS
+
+**Common Issues:**
+
+1. **DNS not resolving**:
+   ```bash
+   # Wait a few minutes after initial setup
+   # Check provider status page
+   # Verify token/credentials
+   ```
+
+2. **IP not updating**:
+   ```bash
+   # Check router logs
+   # Verify internet connectivity
+   # Manual update via provider website
+   ```
+
+3. **Script not running**:
+   ```bash
+   # Check script permissions
+   sudo chmod +x /usr/local/bin/duckdns-update.sh
+   
+   # Check cron service
+   sudo systemctl status cron
+   
+   # View cron logs
+   sudo journalctl -u cron
+   ```
+
+#### Advanced Configuration
+
+**Multiple Domains**: Set up different subdomains for different services:
+- `vpn.yourdomain.duckdns.org` - OpenVPN
+- `ssh.yourdomain.duckdns.org` - SSH access
+- `web.yourdomain.duckdns.org` - Web services
+
+**Custom Domain**: Use your own domain with CloudFlare:
+- Configure CloudFlare as DNS provider
+- Use CloudFlare API for automatic updates
+- Better customization and features
+
+**Backup Providers**: Set up multiple Dynamic DNS providers for redundancy
+
+#### Security Considerations
+
+- **Keep tokens secure**: Don't share your Dynamic DNS tokens
+- **Use HTTPS**: Always use HTTPS URLs for updates
+- **Monitor logs**: Regularly check update logs
+- **Backup configuration**: Save your Dynamic DNS settings
 
 ---
 
